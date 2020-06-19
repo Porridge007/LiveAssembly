@@ -7,6 +7,11 @@
 // @LicenseUrl http://www.apache.org/licenses/LICENSE-2.0.html
 package routers
 
-func init() {
+import (
+	"LiveAssembly/controllers"
+	"github.com/astaxie/beego"
+)
 
+func init() {
+	beego.Router("/push", &controllers.PushController{})
 }

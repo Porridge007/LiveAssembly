@@ -2,15 +2,12 @@ package main
 
 import (
 	_ "LiveAssembly/routers"
-	"os/exec"
 	"github.com/astaxie/beego"
+	"os/exec"
 )
 
 func init(){
-	cmd:= exec.Command("taskkill /f /t /im livego.exe")
-	cmd.Run()
-	cmd = exec.Command("extra/livego.exe")
-	cmd.Run()
+	go execLiveGo()
 }
 
 func main() {
@@ -19,4 +16,11 @@ func main() {
 		beego.BConfig.WebConfig.StaticDir["/swagger"] = "swagger"
 	}
 	beego.Run()
+}
+
+func execLiveGo(){
+	cmd:= exec.Command("taskkill /f /t /im livego.exe")
+	cmd.Run()
+	cmd = exec.Command("extra/livego.exe")
+	cmd.Run()
 }
