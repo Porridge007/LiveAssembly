@@ -26,19 +26,21 @@ func CreateChannel() models.PushStruct {
 	var channel Channel
 	json.Unmarshal(body, &channel)
 
+	thisRoom := RoomID
 	RoomID += 1
 
 	return models.PushStruct{
 		PushAddr: "rtmp://localhost:1935/live/" + channel.Channel,
 		WatchAddr: models.PushWatch{
-			Rtmp: "rtmp://localhost:1935/live/movie" + strconv.Itoa(RoomID),
-			Flv:  "http://127.0.0.1:7001/live/movie" + strconv.Itoa(RoomID) + ".flv",
-			Hls:  "http://127.0.0.1:7002/live/movie" + strconv.Itoa(RoomID) + ".m3u8",
+			Rtmp: "rtmp://localhost:1935/live/movie" + strconv.Itoa(thisRoom),
+			Flv:  "http://127.0.0.1:7001/live/movie" + strconv.Itoa(thisRoom) + ".flv",
+			Hls:  "http://127.0.0.1:7002/live/movie" + strconv.Itoa(thisRoom) + ".m3u8",
 		},
 	}
 }
 
 func PullStream(pullAddr, pushAddr string)  {
+	var quit chan<- bool
 	cmd := exec.Command("extra/ffmpeg.exe", "-i", pullAddr, "-vcodec", "copy", "-acodec", "copy", "-f","flv",
 		pushAddr)
 	fmt.Println(cmd)
@@ -46,10 +48,17 @@ func PullStream(pullAddr, pushAddr string)  {
 	var stderr bytes.Buffer
 	cmd.Stdout = &out
 	cmd.Stderr = &stderr
-	err := cmd.Run()
-	if err != nil {
-		fmt.Println(fmt.Sprint(err) + ": " + stderr.String())
-		return
+	for{
+		select {
+			case quit<-true:
+				return
+			default:
+				err := cmd.Run()
+				if err != nil {
+					fmt.Println(fmt.Sprint(err) + ": " + stderr.String())
+					return
+				}
+				fmt.Println("Result: " + out.String())
+		}
 	}
-	fmt.Println("Result: " + out.String())
 }
