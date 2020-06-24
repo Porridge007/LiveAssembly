@@ -26,6 +26,8 @@ func CreateChannel() models.PushStruct {
 	var channel Channel
 	json.Unmarshal(body, &channel)
 
+	RoomID += 1
+
 	return models.PushStruct{
 		PushAddr: "rtmp://localhost:1935/live/" + channel.Channel,
 		WatchAddr: models.PushWatch{

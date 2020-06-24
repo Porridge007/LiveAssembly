@@ -25,6 +25,4 @@ func (c *PushController) Post() {
 	}
 	c.Data["json"] = &ret
 	c.ServeJSON()
-
-	RoomID += 1
 }
