@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"github.com/astaxie/beego"
+	"liveassembly/models"
 )
 
 var RoomID int
@@ -16,7 +17,12 @@ type PushController struct {
 }
 
 func (c *PushController) Post() {
-	ret := CreateChannel()
+	pushStruct := CreateChannel()
+	ret := models.Resp{
+		Code: 200,
+		Msg:  "Add Stream-Pushing Success",
+		Data: pushStruct,
+	}
 	c.Data["json"] = &ret
 	c.ServeJSON()
 

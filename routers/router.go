@@ -8,10 +8,11 @@
 package routers
 
 import (
-	"LiveAssembly/controllers"
 	"github.com/astaxie/beego"
+	"liveassembly/controllers"
 )
 
 func init() {
 	beego.Router("/push", &controllers.PushController{})
+	beego.Router("/pull", &controllers.PullController{})
 }

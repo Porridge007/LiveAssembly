@@ -1,8 +1,8 @@
 package main
 
 import (
-	_ "LiveAssembly/routers"
 	"github.com/astaxie/beego"
+	_ "liveassembly/routers"
 	"os/exec"
 )
 
