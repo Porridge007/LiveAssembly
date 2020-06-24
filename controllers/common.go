@@ -1,11 +1,13 @@
 package controllers
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"liveassembly/models"
 	"net/http"
+	"os/exec"
 	"strconv"
 )
 
@@ -32,4 +34,20 @@ func CreateChannel() models.PushStruct {
 			Hls:  "http://127.0.0.1:7002/live/movie" + strconv.Itoa(RoomID) + ".m3u8",
 		},
 	}
+}
+
+func PullStream(pullAddr, pushAddr string)  {
+	cmd := exec.Command("extra/ffmpeg.exe", "-i", pullAddr, "-vcodec", "copy", "-acodec", "copy", "-f","flv",
+		pushAddr)
+	fmt.Println(cmd)
+	var out bytes.Buffer
+	var stderr bytes.Buffer
+	cmd.Stdout = &out
+	cmd.Stderr = &stderr
+	err := cmd.Run()
+	if err != nil {
+		fmt.Println(fmt.Sprint(err) + ": " + stderr.String())
+		return
+	}
+	fmt.Println("Result: " + out.String())
 }

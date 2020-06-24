@@ -10,15 +10,18 @@ type PullController struct {
 	beego.Controller
 }
 
-func (c *PullController) Post(){
+func (c *PullController) Post() {
 	pullAddr := c.GetString("pullAddr")
 	fmt.Println(pullAddr)
+	pushStruct := CreateChannel()
 
-	ret :=  models.Resp{
+	go PullStream(pullAddr, pushStruct.PushAddr)
+	ret := models.Resp{
 		Code: 200,
 		Msg:  "Pull Stream Success",
-		Data: nil,
+		Data: pushStruct,
 	}
+
 	c.Data["json"] = &ret
 	c.ServeJSON()
 }
