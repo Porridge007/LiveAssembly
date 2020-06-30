@@ -11,4 +11,6 @@ type PushStruct struct {
 	WatchAddr PushWatch
 }
 
+type FFmpegPid map[string]int
+
 type PushList []PushStruct

@@ -15,4 +15,5 @@ import (
 func init() {
 	beego.Router("/push", &controllers.PushController{})
 	beego.Router("/pull", &controllers.PullController{})
+	beego.Router("/kill", &controllers.KillerController{})
 }

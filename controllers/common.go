@@ -9,7 +9,10 @@ import (
 	"net/http"
 	"os/exec"
 	"strconv"
+	"strings"
 )
+
+var PidMap = make(models.FFmpegPid)
 
 func CreateChannel() models.PushStruct {
 	url := "http://localhost:8090/control/get?room=movie" + strconv.Itoa(RoomID)
@@ -39,8 +42,7 @@ func CreateChannel() models.PushStruct {
 	}
 }
 
-func PullStream(pullAddr, pushAddr string)  {
-	var quit chan<- bool
+func PullStream(pullAddr, pushAddr, roomID string)  {
 	cmd := exec.Command("extra/ffmpeg.exe", "-i", pullAddr, "-vcodec", "copy", "-acodec", "copy", "-f","flv",
 		pushAddr)
 	fmt.Println(cmd)
@@ -48,17 +50,18 @@ func PullStream(pullAddr, pushAddr string)  {
 	var stderr bytes.Buffer
 	cmd.Stdout = &out
 	cmd.Stderr = &stderr
-	for{
-		select {
-			case quit<-true:
-				return
-			default:
-				err := cmd.Run()
-				if err != nil {
-					fmt.Println(fmt.Sprint(err) + ": " + stderr.String())
-					return
-				}
-				fmt.Println("Result: " + out.String())
-		}
-	}
+	cmd.Start()
+	//pidStruct :=  models.FFmpegPid{
+	//	Channel: roomID,
+	//	Pid:     cmd.Process.Pid,
+	//}
+	PidMap[roomID] = cmd.Process.Pid
+	fmt.Println(PidMap)
+	cmd.Wait()
+
+}
+
+func GetChannel(watchAddr string) string{
+	split := strings.Split(watchAddr, "/")
+	return  split[len(split)-1]
 }
