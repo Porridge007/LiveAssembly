@@ -10,6 +10,7 @@ import (
 )
 
 var RoomID int
+var PullRoom = make(models.PullRoomMap)
 
 type Channel struct {
 	Status  int    `json:"status"`
@@ -21,6 +22,10 @@ type PullController struct {
 }
 
 type PushController struct {
+	beego.Controller
+}
+
+type StarterController struct {
 	beego.Controller
 }
 
@@ -44,7 +49,12 @@ func (c *PullController) Post() {
 	pullAddr := c.GetString("pullAddr")
 	pushStruct := CreateChannel()
 
-	go PullStream(pullAddr, pushStruct.PushAddr, GetChannel(pushStruct.WatchAddr.Rtmp))
+	PullRoom[GetChannel(pushStruct.WatchAddr.Rtmp)] = models.Addrs{
+		PullAddr: pullAddr,
+		PushAddr: pushStruct.PushAddr,
+	}
+
+	//go PullStream(pullAddr, pushStruct.PushAddr, GetChannel(pushStruct.WatchAddr.Rtmp))
 	ret := models.Resp{
 		Code: 200,
 		Msg:  "Pull Stream Success",
@@ -55,7 +65,21 @@ func (c *PullController) Post() {
 	c.ServeJSON()
 }
 
-func (c *KillerController) Post(){
+func (c *StarterController) Post() {
+	RoomID := c.GetString("room")
+	addrs := PullRoom[RoomID]
+	fmt.Println(addrs)
+	go PullStream(addrs.PullAddr, addrs.PushAddr, RoomID)
+	ret := models.Resp{
+		Code: 0,
+		Msg:  "Start Stream-pulling success",
+		Data: nil,
+	}
+	c.Data["json"] = &ret
+	c.ServeJSON()
+}
+
+func (c *KillerController) Post() {
 	RoomID := c.GetString("room")
 	cmd := exec.Command("taskkill", "/pid", strconv.Itoa(PidMap[RoomID]), "/f")
 	fmt.Println(cmd)
@@ -69,6 +93,6 @@ func (c *KillerController) Post(){
 		Msg:  "Kill Stream-pulling success",
 		Data: nil,
 	}
-	c.Data["json"] =&ret
+	c.Data["json"] = &ret
 	c.ServeJSON()
 }

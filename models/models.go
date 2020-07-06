@@ -13,4 +13,10 @@ type PushStruct struct {
 
 type FFmpegPid map[string]int
 
+type Addrs struct {
+	PullAddr string
+	PushAddr string
+}
+type PullRoomMap map[string]Addrs
+
 type PushList []PushStruct
